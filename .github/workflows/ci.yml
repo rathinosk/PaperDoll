@@ -1,0 +1,48 @@
+# Builds and tests PaperDoll. The demos and the renderer tests are Windows x64 (FNA's and ImGui's native libraries);
+# PaperDoll.Core's tests also run on Linux. Sample puppets are not in the repository, so the tests that need them skip,
+# as do render tests when the runner cannot create a graphics device.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  windows:
+    name: Build and test (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Build
+        run: dotnet build PaperDoll.slnx -c Release
+      - name: Test
+        run: dotnet test --solution PaperDoll.slnx -c Release --no-build
+      - name: Pack
+        run: |
+          dotnet pack src/PaperDoll.Core -c Release --no-build -o artifacts/nuget
+          dotnet pack src/PaperDoll.FNA -c Release --no-build -o artifacts/nuget
+          dotnet pack src/PaperDoll.MonoGame -c Release --no-build -o artifacts/nuget
+
+  core-linux:
+    name: Core tests (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Test
+        run: dotnet test --project tests/PaperDoll.Core.Tests -c Release

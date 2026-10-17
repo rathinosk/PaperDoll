@@ -1,0 +1,11 @@
+.reference/
+.samples/
+.libraries/
+.output/
+bin/
+obj/
+obj_core/
+.vs/
+*.user
+TestResults/
+artifacts/

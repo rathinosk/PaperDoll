@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>PaperDoll.Fna.Tests</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- FNA's native libraries are Windows x64 only so far (lib/fnalibs). -->
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PaperDoll.Core\PaperDoll.Core.csproj" />
+    <ProjectReference Include="..\..\src\PaperDoll.FNA\PaperDoll.FNA.csproj" />
+    <ProjectReference Include="..\..\src\PaperDoll.Snapshots\PaperDoll.Snapshots.csproj" />
+    <ProjectReference Include="..\..\lib\FNA\FNA.Core.csproj" />
+  </ItemGroup>
+
+  <!-- Builds INP1 puppets in memory, shared with the Core tests. -->
+  <ItemGroup>
+    <Compile Include="..\PaperDoll.Core.Tests\TestData.cs" Link="TestData.cs" />
+  </ItemGroup>
+
+  <!-- FNA3D and SDL3 beside the test executable; render tests skip if no graphics device can be created. -->
+  <ItemGroup>
+    <None Include="..\..\lib\fnalibs\x64\*.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
+</Project>

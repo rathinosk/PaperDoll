@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>PaperDoll.Fna</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageId>PaperDoll.FNA</PackageId>
+    <Description>Draws PaperDoll puppets through FNA.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PaperDoll.Core\PaperDoll.Core.csproj" />
+    <!-- Compiled against FNA 26.10, but not a package dependency: FNA is not on NuGet, so the game brings its own FNA. -->
+    <ProjectReference Include="..\..\lib\FNA\FNA.Core.csproj" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PaperDoll.FNA.Tests" />
+  </ItemGroup>
+
+  <!-- The effect is compiled by Shaders/build-shaders.ps1 (fxc) and committed; the build only embeds it. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Shaders\PaperDoll.fxb" LogicalName="PaperDoll.Fna.Shaders.PaperDoll.fxb" />
+    <None Include="Shaders\PaperDoll.fx;Shaders\PaperDoll.fx.sha256;Shaders\build-shaders.ps1" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,187 @@
+{
+  // Debug configurations for the demos (FNA and MonoGame) and the paperdoll CLI. Each builds the solution first
+  // (tasks.json); the MonoGame WindowsDX ones build that demo with -p:MonoGameBackend=WindowsDX instead.
+  // Sample puppets come from .samples/ (git-ignored); the configurations that name one fail to open it if it is absent.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Demo",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/samples/PaperDoll.Demo/bin/Debug/net10.0/PaperDoll.Demo.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Demo: five puppets",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/samples/PaperDoll.Demo/bin/Debug/net10.0/PaperDoll.Demo.dll",
+      "args": [
+        ".samples/99days-samples/claire.inx",
+        ".samples/99days-samples/keito.inx",
+        ".samples/99days-samples/rei.inx",
+        ".samples/inochi3d-samples/Aka.inx",
+        ".samples/inochi3d-samples/Midori.inx"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Demo: same puppet twice",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/samples/PaperDoll.Demo/bin/Debug/net10.0/PaperDoll.Demo.dll",
+      "args": [".samples/99days-samples/claire.inx", ".samples/99days-samples/claire.inx"],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Demo: one puppet (pick)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/samples/PaperDoll.Demo/bin/Debug/net10.0/PaperDoll.Demo.dll",
+      "args": ["${input:samplePuppet}"],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Demo (MonoGame DesktopGL)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/samples/PaperDoll.Demo.MonoGame/bin/Debug/net10.0/PaperDoll.Demo.MonoGame.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Demo (MonoGame DesktopGL): five puppets",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/samples/PaperDoll.Demo.MonoGame/bin/Debug/net10.0/PaperDoll.Demo.MonoGame.dll",
+      "args": [
+        ".samples/99days-samples/claire.inx",
+        ".samples/99days-samples/keito.inx",
+        ".samples/99days-samples/rei.inx",
+        ".samples/inochi3d-samples/Aka.inx",
+        ".samples/inochi3d-samples/Midori.inx"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Demo (MonoGame DesktopGL): one puppet (pick)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/samples/PaperDoll.Demo.MonoGame/bin/Debug/net10.0/PaperDoll.Demo.MonoGame.dll",
+      "args": ["${input:samplePuppet}"],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Demo (MonoGame WindowsDX)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build MonoGame WindowsDX",
+      "program": "${workspaceFolder}/samples/PaperDoll.Demo.MonoGame/bin/Debug/net10.0-windows/PaperDoll.Demo.MonoGame.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Demo (MonoGame WindowsDX): five puppets",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build MonoGame WindowsDX",
+      "program": "${workspaceFolder}/samples/PaperDoll.Demo.MonoGame/bin/Debug/net10.0-windows/PaperDoll.Demo.MonoGame.dll",
+      "args": [
+        ".samples/99days-samples/claire.inx",
+        ".samples/99days-samples/keito.inx",
+        ".samples/99days-samples/rei.inx",
+        ".samples/inochi3d-samples/Aka.inx",
+        ".samples/inochi3d-samples/Midori.inx"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Demo (MonoGame WindowsDX): one puppet (pick)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build MonoGame WindowsDX",
+      "program": "${workspaceFolder}/samples/PaperDoll.Demo.MonoGame/bin/Debug/net10.0-windows/PaperDoll.Demo.MonoGame.dll",
+      "args": ["${input:samplePuppet}"],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": "CLI: inspect (pick)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/PaperDoll.Tools/bin/Debug/net10.0/paperdoll.dll",
+      "args": ["inspect", "${input:samplePuppet}"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "CLI: validate .samples",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/PaperDoll.Tools/bin/Debug/net10.0/paperdoll.dll",
+      "args": ["validate", ".samples"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "CLI: check snapshots",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/PaperDoll.Tools/bin/Debug/net10.0/paperdoll.dll",
+      "args": ["snapshots"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    }
+  ],
+  "inputs": [
+    {
+      "id": "samplePuppet",
+      "type": "pickString",
+      "description": "Sample puppet",
+      "default": ".samples/99days-samples/claire.inx",
+      "options": [
+        ".samples/99days-samples/claire.inx",
+        ".samples/99days-samples/keito.inx",
+        ".samples/99days-samples/liam.inx",
+        ".samples/99days-samples/rei.inx",
+        ".samples/99days-samples/taylor.inx",
+        ".samples/99days-samples/zeehua.inx",
+        ".samples/inochi3d-samples/Aka.inx",
+        ".samples/inochi3d-samples/Midori.inx"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+#region License
+/* FNA - XNA4 Reimplementation for Desktop Platforms
+ * Copyright 2009-2024 Ethan Lee and the MonoGame Team
+ *
+ * Released under the Microsoft Public License.
+ * See LICENSE for details.
+ */
+#endregion
+
+#region Using Statements
+using System;
+#endregion
+
+namespace Microsoft.Xna.Framework
+{
+	public class GameComponent : IGameComponent, IUpdateable, IComparable<GameComponent>, IDisposable
+	{
+		#region Public Properties
+
+		public Game Game
+		{
+			get;
+			private set;
+		}
+
+		public bool Enabled
+		{
+			get
+			{
+				return _enabled;
+			}
+			set
+			{
+				if (_enabled != value)
+				{
+					_enabled = value;
+					OnEnabledChanged(this, EventArgs.Empty);
+				}
+			}
+		}
+
+		public int UpdateOrder
+		{
+			get
+			{
+				return _updateOrder;
+			}
+			set
+			{
+				if (_updateOrder != value)
+				{
+					_updateOrder = value;
+					OnUpdateOrderChanged(this, EventArgs.Empty);
+				}
+			}
+		}
+
+		#endregion
+
+		#region Private Variables
+
+		bool _enabled = true;
+		int _updateOrder;
+
+		#endregion
+
+		#region Events
+
+		public event EventHandler<EventArgs> Disposed;
+		public event EventHandler<EventArgs> EnabledChanged;
+		public event EventHandler<EventArgs> UpdateOrderChanged;
+
+		#endregion
+
+		#region Public Constructors
+
+		public GameComponent(Game game)
+		{
+			this.Game = game;
+		}
+
+		#endregion
+
+		#region Destructor
+
+		~GameComponent()
+		{
+			Dispose(false);
+		}
+
+		#endregion
+
+		#region Public Dispose Method
+
+		/// <summary>
+		/// Shuts down the component.
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		#endregion
+
+		#region Public Virtual Methods
+
+		public virtual void Initialize() {}
+
+		public virtual void Update(GameTime gameTime) {}
+
+		#endregion
+
+		#region Protected Virtual Methods
+
+		protected virtual void OnUpdateOrderChanged(object sender, EventArgs args)
+		{
+			if (this.UpdateOrderChanged != null)
+			{
+				this.UpdateOrderChanged(this, args);
+			}
+		}
+
+		protected virtual void OnEnabledChanged(object sender, EventArgs args)
+		{
+			if (this.EnabledChanged != null)
+			{
+				this.EnabledChanged(this, args);
+			}
+		}
+
+		/// <summary>
+		/// Shuts down the component.
+		/// </summary>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (Game != null)
+				{
+					Game.Components.Remove(this);
+				}
+				if (Disposed != null)
+				{
+					Disposed(this, EventArgs.Empty);
+				}
+			}
+		}
+
+		#endregion
+
+		#region IComparable<GameComponent> Members
+
+		int IComparable<GameComponent>.CompareTo(GameComponent other)
+		{
+			return other.UpdateOrder - this.UpdateOrder;
+		}
+
+		#endregion
+	}
+}

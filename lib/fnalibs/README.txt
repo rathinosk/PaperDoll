@@ -1,0 +1,23 @@
+This is fnalibs, an archive containing the native libraries used by FNA.
+
+These are the folders included:
+
+- x86: 32-bit Windows
+- x64: 64-bit Windows
+- lib64: Linux (64-bit only)
+- libaarch64: Linux ARM (64-bit only)
+- D3D12: Agility SDK (64-bit)
+
+The library dependency list is as follows:
+
+- SDL3, used as the platform layer
+- FNA3D, used in the Graphics namespace
+- FAudio, used in the Audio/Media namespaces
+- libtheorafile, only used for VideoPlayer
+
+For Linux, the minimum OS requirement is glibc 2.31.
+
+For the Agility SDK, be sure to put the D3D12 folder next to your game exe, and
+be sure to preserve the D3D12 folder, things break badly otherwise! You will
+also want to be sure that the D3D12 folder and FNA3D.dll files remain sync'd, as
+the SDK is very particular about keeping the version number locked in.

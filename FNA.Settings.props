@@ -1,0 +1,7 @@
+<Project>
+  <!-- Property overrides FNA.Core.csproj imports from the solution folder (FNA's own hook), so lib/FNA stays unmodified. -->
+  <PropertyGroup>
+    <!-- CA2255: FNA's DllMap uses [ModuleInitializer] in library code by design. -->
+    <NoWarn>$(NoWarn);CA2255</NoWarn>
+  </PropertyGroup>
+</Project>

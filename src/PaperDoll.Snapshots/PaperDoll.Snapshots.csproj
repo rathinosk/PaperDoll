@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Regression snapshots of Core's output. Shared by the demo (saves accepted snapshots), the tests and the CLI (compare them). Never packaged. -->
+  <PropertyGroup>
+    <RootNamespace>PaperDoll.Snapshots</RootNamespace>
+    <IsAotCompatible>true</IsAotCompatible>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PaperDoll.Core\PaperDoll.Core.csproj" />
+  </ItemGroup>
+
+</Project>

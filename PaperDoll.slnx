@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PaperDoll.Core/PaperDoll.Core.csproj" />
+    <Project Path="src/PaperDoll.FNA/PaperDoll.FNA.csproj" />
+    <Project Path="src/PaperDoll.MonoGame/PaperDoll.MonoGame.csproj" />
+    <Project Path="src/PaperDoll.Snapshots/PaperDoll.Snapshots.csproj" />
+    <Project Path="src/PaperDoll.Tools/PaperDoll.Tools.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/PaperDoll.Demo/PaperDoll.Demo.csproj" />
+    <Project Path="samples/PaperDoll.Demo.MonoGame/PaperDoll.Demo.MonoGame.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PaperDoll.Core.Tests/PaperDoll.Core.Tests.csproj" />
+    <Project Path="tests/PaperDoll.FNA.Tests/PaperDoll.FNA.Tests.csproj" />
+    <Project Path="tests/PaperDoll.MonoGame.Tests/PaperDoll.MonoGame.Tests.csproj" />
+  </Folder>
+  <Folder Name="/lib/">
+    <Project Path="lib/FNA/FNA.Core.csproj" />
+  </Folder>
+</Solution>

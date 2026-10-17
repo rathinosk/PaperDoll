@@ -1,0 +1,319 @@
+#region License
+/* FNA - XNA4 Reimplementation for Desktop Platforms
+ * Copyright 2009-2024 Ethan Lee and the MonoGame Team
+ *
+ * Released under the Microsoft Public License.
+ * See LICENSE for details.
+ */
+#endregion
+
+#region Using Statements
+using System;
+using System.Runtime.InteropServices;
+#endregion
+
+namespace Microsoft.Xna.Framework.Graphics
+{
+	public class Texture3D : Texture
+	{
+		#region Public Properties
+
+		public int Width
+		{
+			get;
+			private set;
+		}
+
+		public int Height
+		{
+			get;
+			private set;
+		}
+
+		public int Depth
+		{
+			get;
+			private set;
+		}
+
+		#endregion
+
+		#region Public Constructor
+
+		public Texture3D(
+			GraphicsDevice graphicsDevice,
+			int width,
+			int height,
+			int depth,
+			bool mipMap,
+			SurfaceFormat format
+		) {
+			if (graphicsDevice == null)
+			{
+				throw new ArgumentNullException("graphicsDevice", "The GraphicsDevice must not be null when creating new resources.");
+			}
+			if (width <= 0)
+			{
+				throw new ArgumentOutOfRangeException("width", "Resource size must be greater than zero.");
+			}
+			if (height <= 0)
+			{
+				throw new ArgumentOutOfRangeException("height", "Resource size must be greater than zero.");
+			}
+			if (depth <= 0)
+			{
+				throw new ArgumentOutOfRangeException("depth", "Resource size must be greater than zero.");
+			}
+
+			GraphicsDevice = graphicsDevice;
+			Width = width;
+			Height = height;
+			Depth = depth;
+			LevelCount = mipMap ? CalculateMipLevels(width, height) : 1;
+			Format = format;
+
+			texture = FNA3D.FNA3D_CreateTexture3D(
+				GraphicsDevice.GLDevice,
+				Format,
+				Width,
+				Height,
+				Depth,
+				LevelCount
+			);
+		}
+
+		#endregion
+
+		#region Public SetData Methods
+
+		public void SetData<T>(T[] data) where T : struct
+		{
+			SetData<T>(
+				data,
+				0,
+				data == null ? 0 : data.Length
+			);
+		}
+
+		public void SetData<T>(
+			T[] data,
+			int startIndex,
+			int elementCount
+		) where T : struct {
+			SetData<T>(
+				0,
+				0,
+				0,
+				Width,
+				Height,
+				0,
+				Depth,
+				data,
+				startIndex,
+				elementCount
+			);
+		}
+
+		public void SetData<T>(
+			int level,
+			int left,
+			int top,
+			int right,
+			int bottom,
+			int front,
+			int back,
+			T[] data,
+			int startIndex,
+			int elementCount
+		) where T : struct {
+			if (texture == IntPtr.Zero)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
+			if (data == null || data.Length == 0)
+			{
+				throw new ArgumentNullException("data", "This method does not accept null for this parameter.");
+			}
+			if (unchecked((uint) level >= (uint) LevelCount))
+			{
+				throw new InvalidOperationException("An unexpected error has occurred.");
+			}
+			ValidateCopyParameters(data.Length, startIndex, elementCount);
+			int formatSize = GetFormatSizeEXT(Format);
+			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
+			if (formatSize % elementSizeInBytes != 0)
+			{
+				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
+			}
+			if (unchecked(
+				(uint) left >= (uint) right || (uint) right > (uint) Width >> level ||
+				(uint) top >= (uint) bottom || (uint) bottom > (uint) Height >> level ||
+				(uint) front >= (uint) back || (uint) back > (uint) Depth >> level
+			)) {
+				throw new ArgumentException("The rectangle is too large or too small for this resource.", "box");
+			}
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			FNA3D.FNA3D_SetTextureData3D(
+				GraphicsDevice.GLDevice,
+				texture,
+				left,
+				top,
+				front,
+				right - left,
+				bottom - top,
+				back - front,
+				level,
+				handle.AddrOfPinnedObject() + startIndex * elementSizeInBytes,
+				elementCount * elementSizeInBytes
+			);
+			handle.Free();
+		}
+
+		public void SetDataPointerEXT(
+			int level,
+			int left,
+			int top,
+			int right,
+			int bottom,
+			int front,
+			int back,
+			IntPtr data,
+			int dataLength
+		) {
+			if (data == IntPtr.Zero)
+			{
+				throw new ArgumentNullException("data");
+			}
+
+			FNA3D.FNA3D_SetTextureData3D(
+				GraphicsDevice.GLDevice,
+				texture,
+				left,
+				top,
+				front,
+				right - left,
+				bottom - top,
+				back - front,
+				level,
+				data,
+				dataLength
+			);
+		}
+
+		#endregion
+
+		#region Public GetData Methods
+
+		/// <summary>
+		/// Gets a copy of 3D texture data.
+		/// </summary>
+		/// <typeparam name="T">The type of the elements in the array.</typeparam>
+		/// <param name="data">Array of data.</param>
+		public void GetData<T>(T[] data) where T : struct
+		{
+			GetData(
+				data,
+				0,
+				data == null ? 0 : data.Length
+			);
+		}
+
+		/// <summary>
+		/// Gets a copy of 3D texture data, specifying a start index and number of elements.
+		/// </summary>
+		/// <typeparam name="T">The type of the elements in the array.</typeparam>
+		/// <param name="data">Array of data.</param>
+		/// <param name="startIndex">Index of the first element to get.</param>
+		/// <param name="elementCount">Number of elements to get.</param>
+		public void GetData<T>(
+			T[] data,
+			int startIndex,
+			int elementCount
+		) where T : struct {
+			GetData(
+				0,
+				0,
+				0,
+				Width,
+				Height,
+				0,
+				Depth,
+				data,
+				startIndex,
+				elementCount
+			);
+		}
+
+		/// <summary>
+		/// Gets a copy of 3D texture data, specifying a mipmap level, source box, start index, and number of elements.
+		/// </summary>
+		/// <typeparam name="T">The type of the elements in the array.</typeparam>
+		/// <param name="level">Mipmap level.</param>
+		/// <param name="left">Position of the left side of the box on the x-axis.</param>
+		/// <param name="top">Position of the top of the box on the y-axis.</param>
+		/// <param name="right">Position of the right side of the box on the x-axis.</param>
+		/// <param name="bottom">Position of the bottom of the box on the y-axis.</param>
+		/// <param name="front">Position of the front of the box on the z-axis.</param>
+		/// <param name="back">Position of the back of the box on the z-axis.</param>
+		/// <param name="data">Array of data.</param>
+		/// <param name="startIndex">Index of the first element to get.</param>
+		/// <param name="elementCount">Number of elements to get.</param>
+		public void GetData<T>(
+			int level,
+			int left,
+			int top,
+			int right,
+			int bottom,
+			int front,
+			int back,
+			T[] data,
+			int startIndex,
+			int elementCount
+		) where T : struct {
+			if (texture == IntPtr.Zero)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
+			if (data == null || data.Length == 0)
+			{
+				throw new ArgumentNullException("data", "This method does not accept null for this parameter.");
+			}
+			if (unchecked((uint) level >= (uint) LevelCount))
+			{
+				throw new InvalidOperationException("An unexpected error has occurred.");
+			}
+			ValidateCopyParameters(data.Length, startIndex, elementCount);
+			int formatSize = GetFormatSizeEXT(Format);
+			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
+			if (formatSize % elementSizeInBytes != 0)
+			{
+				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
+			}
+			if (unchecked(
+				(uint) left >= (uint) right || (uint) right > (uint) Width >> level ||
+				(uint) top >= (uint) bottom || (uint) bottom > (uint) Height >> level ||
+				(uint) front >= (uint) back || (uint) back > (uint) Depth >> level
+			)) {
+				throw new ArgumentException("The rectangle is too large or too small for this resource.", "box");
+			}
+
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			FNA3D.FNA3D_GetTextureData3D(
+				GraphicsDevice.GLDevice,
+				texture,
+				left,
+				top,
+				front,
+				right - left,
+				bottom - top,
+				back - front,
+				level,
+				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
+				elementCount * elementSizeInBytes
+			);
+			handle.Free();
+		}
+
+		#endregion
+	}
+}

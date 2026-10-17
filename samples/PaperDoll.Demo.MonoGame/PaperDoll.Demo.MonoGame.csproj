@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The PaperDoll demo on MonoGame: PaperDoll.Demo's source, built with MONOGAME against PaperDoll.MonoGame.
+       DesktopGL (OpenGL) by default; -p:MonoGameBackend=WindowsDX builds it on DirectX 11 instead. -->
+  <PropertyGroup>
+    <MonoGameBackend Condition="'$(MonoGameBackend)' == ''">DesktopGL</MonoGameBackend>
+    <TargetFramework Condition="'$(MonoGameBackend)' == 'WindowsDX'">net10.0-windows</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>PaperDoll.Demo.MonoGame</AssemblyName>
+    <RootNamespace>PaperDoll.Demo</RootNamespace>
+    <DefineConstants>$(DefineConstants);MONOGAME</DefineConstants>
+    <IsPackable>false</IsPackable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- cimgui is Windows x64 only (lib/ImGui.NET). -->
+    <PlatformTarget>x64</PlatformTarget>
+    <ApplicationIcon>..\..\assets\paperdoll-logo.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <Target Name="CheckMonoGameBackend" BeforeTargets="Build" Condition="'$(MonoGameBackend)' != 'DesktopGL' And '$(MonoGameBackend)' != 'WindowsDX'">
+    <Error Text="MonoGameBackend must be DesktopGL or WindowsDX, not '$(MonoGameBackend)'." />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="..\PaperDoll.Demo\*.cs" Link="%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- DesktopGL sets the window icon from an embedded Icon.bmp (otherwise MonoGame's own); WindowsDX uses ApplicationIcon. -->
+  <ItemGroup Condition="'$(MonoGameBackend)' == 'DesktopGL'">
+    <EmbeddedResource Include="..\..\assets\paperdoll-logo.bmp" LogicalName="Icon.bmp" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PaperDoll.Core\PaperDoll.Core.csproj" />
+    <ProjectReference Include="..\..\src\PaperDoll.MonoGame\PaperDoll.MonoGame.csproj" />
+    <ProjectReference Include="..\..\src\PaperDoll.Snapshots\PaperDoll.Snapshots.csproj" />
+    <PackageReference Include="MonoGame.Framework.$(MonoGameBackend)" />
+  </ItemGroup>
+
+  <!-- ImGui.NET 1.91.6.1, extracted from its NuGet package (lib/ImGui.NET), and its native cimgui. -->
+  <ItemGroup>
+    <Reference Include="ImGui.NET">
+      <HintPath>..\..\lib\ImGui.NET\ImGui.NET.dll</HintPath>
+    </Reference>
+    <None Include="..\..\lib\ImGui.NET\win-x64\cimgui.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
+</Project>

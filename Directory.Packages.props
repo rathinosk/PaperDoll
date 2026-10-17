@@ -1,0 +1,16 @@
+<Project>
+  <!-- Central package versions. Outside code is added sparingly, its licence checked first (docs/design/platform.md). -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- PaperDoll.Core: PNG and TGA decoding (approved 2026-10-16). -->
+    <PackageVersion Include="StbImageSharp" Version="2.30.15" />
+    <!-- PaperDoll.MonoGame (compile only), its tests and demo: MonoGame's platform packages (approved 2026-10-17).
+         Shaders are compiled with dotnet-mgfxc, pinned in dotnet-tools.json. -->
+    <PackageVersion Include="MonoGame.Framework.DesktopGL" Version="3.8.6" />
+    <PackageVersion Include="MonoGame.Framework.WindowsDX" Version="3.8.6" />
+    <!-- Tests (approved 2026-10-16). -->
+    <PackageVersion Include="xunit.v3" Version="4.0.1" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>PaperDoll.MonoGame</RootNamespace>
+    <DefineConstants>$(DefineConstants);MONOGAME</DefineConstants>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageId>PaperDoll.MonoGame</PackageId>
+    <Description>Draws PaperDoll puppets through MonoGame (DesktopGL or WindowsDX).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PaperDoll.Core\PaperDoll.Core.csproj" />
+    <!-- Compiled against MonoGame 3.8.6, but not a package dependency: the game picks its MonoGame platform package
+         (DesktopGL or WindowsDX; both are the same MonoGame.Framework API), as libraries for MonoGame do. -->
+    <PackageReference Include="MonoGame.Framework.DesktopGL" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PaperDoll.MonoGame.Tests" />
+  </ItemGroup>
+
+  <!-- The renderer is PaperDoll.FNA's source, compiled against MonoGame; MONOGAME marks the few places that differ. -->
+  <ItemGroup>
+    <Compile Include="..\PaperDoll.FNA\*.cs" Link="%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- The effects are compiled by Shaders/build-shaders.ps1 (mgfxc) from PaperDoll.FNA's PaperDoll.fx and committed; the build only embeds them. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Shaders\PaperDoll.ogl.mgfxo" LogicalName="PaperDoll.MonoGame.Shaders.PaperDoll.ogl.mgfxo" />
+    <EmbeddedResource Include="Shaders\PaperDoll.dx11.mgfxo" LogicalName="PaperDoll.MonoGame.Shaders.PaperDoll.dx11.mgfxo" />
+    <None Include="Shaders\PaperDoll.fx.sha256;Shaders\build-shaders.ps1" />
+  </ItemGroup>
+
+</Project>

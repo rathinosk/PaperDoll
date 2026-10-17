@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>paperdoll</AssemblyName>
+    <RootNamespace>PaperDoll.Tools</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PaperDoll.Core\PaperDoll.Core.csproj" />
+    <ProjectReference Include="..\PaperDoll.Snapshots\PaperDoll.Snapshots.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PaperDoll.Core.Tests" />
+  </ItemGroup>
+
+</Project>

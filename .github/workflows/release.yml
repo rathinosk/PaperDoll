@@ -1,0 +1,169 @@
+# Builds and publishes a release of the version in Directory.Build.props (VersionPrefix): the NuGet packages, the
+# demo (PaperDoll-Demo-<version>-win-x64.zip: the FNA and MonoGame demos, binaries only) and the paperdoll CLI for
+# Windows, Linux and macOS.
+#
+# Run by hand (Actions > Release > Run workflow) on main:
+#   - a new version creates the tag v<version> on the commit built, and a release with the binaries and packages;
+#   - a version already released keeps its tag and has its release's files replaced by this build's (files no longer
+#     built are removed), for changes that leave the libraries as they were. nuget.org never takes the same version
+#     twice, so its packages stay as first pushed.
+# The packages are pushed to nuget.org from the "nuget" environment through Trusted Publishing (no stored API key),
+# from rathinosk/PaperDoll only: in any other repository the tag and release are made and the push is skipped.
+# Run on another branch, the workflow only builds, and the results are the run's artifacts.
+#
+# Setup: on nuget.org, a Trusted Publishing policy for repository rathinosk/PaperDoll, workflow file release.yml,
+# environment nuget; on GitHub, a NUGET_USER secret (the nuget.org user name, not the e-mail address) on the "nuget"
+# environment, and that environment's required reviewers if the push should wait for approval.
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - id: version
+        name: Read the version
+        shell: pwsh
+        run: |
+          $version = (dotnet msbuild src/PaperDoll.Core -getProperty:Version).Trim()
+          if (-not $version) { throw 'No version in Directory.Build.props.' }
+          Write-Host "Version $version"
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+
+  packages:
+    name: NuGet packages
+    needs: [version, ci]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Pack
+        shell: pwsh
+        run: |
+          foreach ($project in 'PaperDoll.Core', 'PaperDoll.FNA', 'PaperDoll.MonoGame') {
+            dotnet pack "src/$project" -c Release -p:ContinuousIntegrationBuild=true -o artifacts/nuget
+            if ($LASTEXITCODE -ne 0) { throw "Packing $project failed." }
+          }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget
+          path: artifacts/nuget/*.nupkg
+          if-no-files-found: error
+
+  binaries:
+    name: ${{ matrix.kind }} (${{ matrix.runtime }})
+    needs: [version, ci]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { kind: demo, runtime: win-x64, os: windows-latest }
+          - { kind: tools, runtime: win-x64, os: windows-latest }
+          - { kind: tools, runtime: linux-x64, os: ubuntu-latest }
+          - { kind: tools, runtime: osx-arm64, os: macos-latest }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      # NativeAOT finds the MSVC linker through vswhere.
+      - name: Put vswhere on PATH
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Add-Content $env:GITHUB_PATH "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer"
+      - name: Publish and archive
+        shell: pwsh
+        run: ./.github/scripts/package-release.ps1 -Kind ${{ matrix.kind }} -Runtime ${{ matrix.runtime }} -Output artifacts/release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: binaries-${{ matrix.kind }}-${{ matrix.runtime }}
+          path: artifacts/release/*
+          if-no-files-found: error
+
+  github-release:
+    name: GitHub release
+    if: github.ref == 'refs/heads/main'
+    needs: [version, packages, binaries]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Create the release, or replace its files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          tag="v$VERSION"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "Release $tag exists: replacing its files."
+            gh release upload "$tag" dist/* --repo "$GITHUB_REPOSITORY" --clobber
+            for asset in $(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name'); do
+              if [ ! -e "dist/$asset" ]; then
+                echo "Removing $asset, no longer built."
+                gh release delete-asset "$tag" "$asset" --repo "$GITHUB_REPOSITORY" --yes
+              fi
+            done
+          else
+            echo "Creating release $tag on $GITHUB_SHA."
+            gh release create "$tag" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "PaperDoll $VERSION" --generate-notes
+          fi
+
+  nuget:
+    name: Push to nuget.org
+    # Only the public repository publishes packages; elsewhere (a private copy) the release is a test.
+    if: github.ref == 'refs/heads/main' && github.repository == 'rathinosk/PaperDoll'
+    needs: [version, packages, binaries]
+    runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      id-token: write  # Trusted Publishing: GitHub's OIDC token is exchanged for a short-lived nuget.org key
+    steps:
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/download-artifact@v4
+        with:
+          name: nuget
+          path: nuget
+      - id: login
+        name: Log in to nuget.org
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+      - name: Push
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push "nuget/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate

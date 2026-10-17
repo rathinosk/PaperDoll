@@ -1,0 +1,36 @@
+<Project>
+  <!-- Shared settings for PaperDoll's own projects. lib/FNA has its own Directory.Build.props, which stops this one applying there. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <Deterministic>true</Deterministic>
+    <Authors>Rathinosk</Authors>
+    <Copyright>Copyright (c) 2026, Rathinosk</Copyright>
+    <PackageLicenseExpression>BSD-2-Clause</PackageLicenseExpression>
+    <PackageIcon>paperdoll-logo.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/rathinosk/PaperDoll</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rathinosk/PaperDoll</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <!-- The one place the version is set: packages, assemblies and release binaries. A release tag (v<version>) must match it. -->
+    <VersionPrefix>1.0.0</VersionPrefix>
+  </PropertyGroup>
+
+  <!-- The packable projects: the logo as the NuGet icon, the licence with the upstream notices, the attribution records,
+       and a package README from docs/packages/<project name>.md (the project name is its PackageId). -->
+  <ItemGroup Condition="'$(IsPackable)' != 'false'">
+    <None Include="$(MSBuildThisFileDirectory)assets\paperdoll-logo.png" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)docs\attribution.md" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)docs\packages\$(MSBuildProjectName).md" Pack="true" PackagePath="\README.md" Visible="false"
+          Condition="Exists('$(MSBuildThisFileDirectory)docs\packages\$(MSBuildProjectName).md')" />
+  </ItemGroup>
+  <!-- PackageId is not set yet when this file is read, so the README is found by project name. -->
+  <PropertyGroup Condition="Exists('$(MSBuildThisFileDirectory)docs\packages\$(MSBuildProjectName).md')">
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- PaperDoll.FNA's tests, run against PaperDoll.MonoGame on both MonoGame desktop backends: net10.0 runs them on
+       DesktopGL (OpenGL), net10.0-windows on WindowsDX (DirectX 11). PaperDoll.MonoGame itself is compiled against
+       DesktopGL, so the WindowsDX run also checks that one build serves both. -->
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net10.0-windows</TargetFrameworks>
+    <TargetFramework></TargetFramework> <!-- Directory.Build.props sets one, which would win over the list -->
+    <OutputType>Exe</OutputType>
+    <RootNamespace>PaperDoll.MonoGame.Tests</RootNamespace>
+    <DefineConstants>$(DefineConstants);MONOGAME</DefineConstants>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- As PaperDoll.FNA.Tests; MonoGame's native libraries come with its packages. -->
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Condition="'$(TargetFramework)' == 'net10.0'" />
+    <PackageReference Include="MonoGame.Framework.WindowsDX" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PaperDoll.Core\PaperDoll.Core.csproj" />
+    <ProjectReference Include="..\..\src\PaperDoll.MonoGame\PaperDoll.MonoGame.csproj" />
+    <ProjectReference Include="..\..\src\PaperDoll.Snapshots\PaperDoll.Snapshots.csproj" />
+  </ItemGroup>
+
+  <!-- The FNA tests, unchanged but for MONOGAME; and INP1 puppets built in memory, shared with the Core tests. -->
+  <ItemGroup>
+    <Compile Include="..\PaperDoll.FNA.Tests\*.cs" Link="%(Filename)%(Extension)" />
+    <Compile Include="..\PaperDoll.Core.Tests\TestData.cs" Link="TestData.cs" />
+  </ItemGroup>
+
+</Project>

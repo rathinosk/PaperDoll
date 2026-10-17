@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>PaperDoll</RootNamespace>
+    <!-- Turns on the trimming, AOT and single-file analysers. -->
+    <IsAotCompatible>true</IsAotCompatible>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageId>PaperDoll.Core</PackageId>
+    <Description>Engine-free 2D puppet runtime: loads Inochi2D INP1 puppets (.inp, .inx).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StbImageSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PaperDoll.Core.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>PaperDoll.Demo</AssemblyName>
+    <RootNamespace>PaperDoll.Demo</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- FNA's native libraries are Windows x64 only so far (lib/fnalibs). -->
+    <PlatformTarget>x64</PlatformTarget>
+    <ApplicationIcon>..\..\assets\paperdoll-logo.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <!-- FNA sets the window icon from "<window title>.png" beside the executable; the title is the assembly name. -->
+  <ItemGroup>
+    <None Include="..\..\assets\paperdoll-logo.png" Link="PaperDoll.Demo.png" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PaperDoll.Core\PaperDoll.Core.csproj" />
+    <ProjectReference Include="..\..\src\PaperDoll.FNA\PaperDoll.FNA.csproj" />
+    <ProjectReference Include="..\..\src\PaperDoll.Snapshots\PaperDoll.Snapshots.csproj" />
+    <ProjectReference Include="..\..\lib\FNA\FNA.Core.csproj" />
+  </ItemGroup>
+
+  <!-- NativeAOT (dotnet publish -r win-x64 -p:PublishAot=true): FNA's own trim and AOT warnings (its content pipeline,
+       type converters and VertexDeclaration.FromType, which works for the demo's blittable vertex types) are reported
+       once for the whole assembly, as a warning rather than an error. PaperDoll's assemblies keep every warning. -->
+  <PropertyGroup Condition="'$(PublishAot)' == 'true'">
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);IL2104;IL3053</WarningsNotAsErrors>
+  </PropertyGroup>
+  <Target Name="FnaSingleWarn" BeforeTargets="WriteIlcRspFileForCompilation" Condition="'$(PublishAot)' == 'true'">
+    <ItemGroup>
+      <ManagedAssemblyToLink Condition="'%(Filename)' == 'FNA'" TrimmerSingleWarn="true" />
+    </ItemGroup>
+  </Target>
+
+  <!-- ImGui.NET 1.91.6.1, extracted from its NuGet package (lib/ImGui.NET). Its package dependencies are part of .NET 10. -->
+  <ItemGroup>
+    <Reference Include="ImGui.NET">
+      <HintPath>..\..\lib\ImGui.NET\ImGui.NET.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Native libraries: FNA3D and SDL3 next to the executable, the D3D12 Agility SDK in D3D12/ as fnalibs' README asks, and cimgui. -->
+  <ItemGroup>
+    <None Include="..\..\lib\fnalibs\x64\*.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="..\..\lib\fnalibs\D3D12\*.dll" Link="D3D12\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="..\..\lib\ImGui.NET\win-x64\cimgui.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
+</Project>
