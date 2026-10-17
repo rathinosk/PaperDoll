@@ -1,0 +1,8 @@
+<Project>
+  <!-- FNA.Core.csproj imports FNA.Settings.props from $(SolutionDir), which is set only when the solution is built. Building
+       or packing one project (PaperDoll.FNA, the demo) leaves it empty, so the overrides are imported here instead.
+       lib/FNA has a Directory.Build.props of its own but no Directory.Build.targets, so this file reaches it. The path is
+       resolved against FNA's folder, as its own import does (a relative Exists() here would look beside this file). -->
+  <Import Project="$(MSBuildThisFileDirectory)FNA.Settings.props"
+          Condition="'$(MSBuildProjectName)' == 'FNA.Core' And !Exists('$([System.IO.Path]::Combine($(MSBuildProjectDirectory), $(FNASettingsPropsFilePath)))')" />
+</Project>

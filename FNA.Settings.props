@@ -3,5 +3,10 @@
   <PropertyGroup>
     <!-- CA2255: FNA's DllMap uses [ModuleInitializer] in library code by design. -->
     <NoWarn>$(NoWarn);CA2255</NoWarn>
+    <!-- A NativeAOT publish passes PublishAot to FNA as well, which turns its trim and AOT analyzers on. FNA is not
+         annotated for them; the demo's AOT publish reports FNA's trim warnings once (IL2104) instead. -->
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>false</EnableAotAnalyzer>
+    <EnableSingleFileAnalyzer>false</EnableSingleFileAnalyzer>
   </PropertyGroup>
 </Project>

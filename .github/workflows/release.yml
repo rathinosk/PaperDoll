@@ -37,8 +37,8 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - id: version
@@ -59,8 +59,8 @@ jobs:
     needs: [version, ci]
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Pack
@@ -70,7 +70,7 @@ jobs:
             dotnet pack "src/$project" -c Release -p:ContinuousIntegrationBuild=true -o artifacts/nuget
             if ($LASTEXITCODE -ne 0) { throw "Packing $project failed." }
           }
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: nuget
           path: artifacts/nuget/*.nupkg
@@ -89,8 +89,8 @@ jobs:
           - { kind: tools, runtime: osx-arm64, os: macos-latest }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       # NativeAOT finds the MSVC linker through vswhere.
@@ -101,7 +101,7 @@ jobs:
       - name: Publish and archive
         shell: pwsh
         run: ./.github/scripts/package-release.ps1 -Kind ${{ matrix.kind }} -Runtime ${{ matrix.runtime }} -Output artifacts/release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: binaries-${{ matrix.kind }}-${{ matrix.runtime }}
           path: artifacts/release/*
@@ -115,7 +115,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           merge-multiple: true
@@ -151,10 +151,10 @@ jobs:
     permissions:
       id-token: write  # Trusted Publishing: GitHub's OIDC token is exchanged for a short-lived nuget.org key
     steps:
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: nuget
           path: nuget
