@@ -40,13 +40,13 @@ renderer.Draw(instance, textures, placement);                // PaperDoll.FNA or
 - [docs/design/](docs/design/README.md): why PaperDoll is built the way it is
 - [docs/attribution.md](docs/attribution.md): the projects PaperDoll is ported from, and the outside code it uses
 
-## Packages
+## NuGet Packages
 
 | Package | Contents |
 | --- | --- |
-| `PaperDoll.Core` | Engine-free and fully managed: the format parser, node tree, parameters, deformers, physics, animations and draw order. Its output per drawable is plain arrays (positions, UVs, indices, opacity, blend mode, masks, draw order) |
-| `PaperDoll.FNA` | A thin renderer that draws Core's output through FNA, with masks, blend modes and texture atlases. Built against FNA 26.10; the game brings FNA itself |
-| `PaperDoll.MonoGame` | The same renderer for MonoGame 3.8.6 (DesktopGL or WindowsDX). Built against MonoGame; the game brings its MonoGame platform package |
+| [`PaperDoll.Core`](https://www.nuget.org/packages/PaperDoll.Core) | Engine-free and fully managed: the format parser, node tree, parameters, deformers, physics, animations and draw order. Its output per drawable is plain arrays (positions, UVs, indices, opacity, blend mode, masks, draw order) |
+| [`PaperDoll.FNA`](https://www.nuget.org/packages/PaperDoll.FNA) | A thin renderer that draws Core's output through FNA, with masks, blend modes and texture atlases. Built against FNA 26.10; the game brings FNA itself |
+| [`PaperDoll.MonoGame`](https://www.nuget.org/packages/PaperDoll.MonoGame) | The same renderer for MonoGame 3.8.6 (DesktopGL or WindowsDX). Built against MonoGame; the game brings its MonoGame platform package |
 
 ## Demo and tools
 
